@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router()
+const BadRequestError = require('../errors/bad-request')
 const { find } = require('lodash')
 
 const db = require('../data/db')
@@ -7,13 +8,7 @@ const courseListCollection = db.courseList
 
 router.post('/', (req, res, next) => {
   if (!req.body.name) {
-    res.status(400)
-    return res.json({
-      error: {
-        code: 'VALIDATION',
-        message: 'Missing name'
-      }
-    })
+    return next(new BadRequestError('VALIDATION', 'Missing name'))
   }
 
   const name = req.body.name
@@ -21,13 +16,7 @@ router.post('/', (req, res, next) => {
   // Check for name uniqueness
   const result = find(courseListCollection, { name })
   if (result) {
-    res.status(400)
-    return res.json({
-      error: {
-        code: 'VALIDATION',
-        message: 'Name should be unique'
-      }
-    })
+    return next(new BadRequestError('VALIDATION', 'Name should be unique'))
   }
 
   const newCourseList = {

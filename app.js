@@ -1,5 +1,7 @@
 const express = require('express')
 const bodyParser = require('body-parser')
+const HttpError = require('./errors/http-error')
+const NotFoundError = require('./errors/not-found')
 
 const app = express()
 
@@ -15,9 +17,18 @@ app.use(bodyParser.json())
 app.use('/course-lists', courselistRouter)
 
 app.use((req, res, next) => {
-  res.status(404)
+  return next(new NotFoundError())
+})
+
+app.use((err, req, res, next) => {
+  if (!err instanceof HttpError) {
+    console.error(err)
+    err = new HttpError(err.message || 'Unknown error')
+  }
+
+  res.status(err.statusCode)
   res.json({
-    error: { code: 'NOT_FOUND', message: 'Page not found' }
+    error: err
   })
 })
 
