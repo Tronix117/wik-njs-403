@@ -21,7 +21,7 @@ app.use((req, res, next) => {
 })
 
 app.use((err, req, res, next) => {
-  if (!err instanceof HttpError) {
+  if (!(err instanceof HttpError)) {
     console.error(err)
     err = new HttpError(err.message || 'Unknown error')
   }
